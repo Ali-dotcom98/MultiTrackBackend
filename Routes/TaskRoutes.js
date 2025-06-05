@@ -350,7 +350,10 @@ router.get("/AdminDashboardData", async (req, res) => {
 
 router.get("/UserDashboardData", Protect, async (req, res) => {
     try {
+
         const userId = req.user._id;
+        console.log(userId);
+
         console.log("User", userId);
 
         const totalTasks = await Task.countDocuments({ assignedTo: userId });

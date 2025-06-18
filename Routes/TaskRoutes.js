@@ -8,6 +8,8 @@ router.get("/GetTask", Protect, async (req, res) => {
     try {
 
         const { status } = req.query;
+        console.log("Status", status);
+
         let filter = {};
         if (status) {
             filter.status = status;
@@ -65,7 +67,7 @@ router.get("/GetTask", Protect, async (req, res) => {
             tasks,
             statusSummary: {
                 all: allTasks,
-                pendingTask: pendingTask,
+                pendingTask: pendingTask == 0 ? (allTasks - inProgressTasks - CompletedTask) : pendingTask,
                 inProgressTasks: inProgressTasks,
                 CompletedTask: CompletedTask
             }
@@ -75,7 +77,6 @@ router.get("/GetTask", Protect, async (req, res) => {
         return res.status(500).json({ message: "Server Error", error: error.message })
     }
 })
-
 
 router.get("/GetTask/:id", async (req, res) => {
     try {
@@ -135,6 +136,8 @@ router.post("/CreateTask", Protect, async (req, res) => {
             todoCheckList,
             createdBy: req.user._id,
         });
+        console.log("Task Created", task);
+
 
         return res.status(201).json({ message: "Task Created Successfully", task });
 
@@ -163,15 +166,16 @@ router.put("/UpdateTask/:id", async (req, res) => {
             }
         }
         task.assignedTo = req.body.assignedTo;
-        const updateUser = await task.save();
-        res.status(201).json({ Message: "Task Updated Successfully", updateUser });
+        const UpdateTask = await task.save();
+        console.log(UpdateTask);
+
+        res.status(201).json({ Message: "Task Updated Successfully", UpdateTask });
 
 
     } catch (error) {
         return res.status(500).json({ message: "Server Error", error: error.message })
     }
 })
-
 
 router.delete("/DeleteTask/:id", async (req, res) => {
     try {
@@ -187,7 +191,6 @@ router.delete("/DeleteTask/:id", async (req, res) => {
         return res.status(500).json({ message: "Server Error", error: error.message })
     }
 })
-
 
 router.put("/UpdateTaskStatus/:id", Protect, async (req, res) => {
     try {
@@ -271,17 +274,16 @@ router.get("/AdminDashboardData", async (req, res) => {
                 status: { $ne: "Completed" },
                 dueDate: { $lt: new Date() }
             });
+
         const taskStatus = ["Pending", "In Progress", "Completed"];
         const taskDistributionRaw = await Task.aggregate([
             {
                 $group: {
-                    _id: "$status",
-                    count: { $sum: 1 },
-
-                },
-
+                    _id: { $ifNull: ["$status", "Pending"] },
+                    count: { $sum: 1 }
+                }
             }
-        ]);
+        ])
         console.log(taskDistributionRaw);
 
         const taskDistribution = taskStatus.reduce((acc, status) => {
@@ -290,7 +292,7 @@ router.get("/AdminDashboardData", async (req, res) => {
             acc[formattedkey] = taskDistributionRaw.find((item) => item._id === status)?.count || 0;
             return acc;
         }, {});
-        console.log(taskDistribution);
+        console.log("taskDistribution", taskDistribution);
 
 
         taskDistribution["All"] = totaltask;

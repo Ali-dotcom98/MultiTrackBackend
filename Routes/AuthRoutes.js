@@ -32,7 +32,7 @@ router.post("/register", async (req, res) => {
             }
         )
         console.log(user);
-        const payload = { User: checkUser };
+        const payload = { User: user };
         const token = GenerateToken(payload);
         console.log(token);
 
@@ -44,7 +44,7 @@ router.post("/register", async (req, res) => {
         });
 
         if (user) {
-            return res.status(201).json({ Message: "User Added Successfully", User: user, token: token });
+            return res.status(201).json({ Message: "User Added Successfully", user: user, token: token });
         } else {
             return res.status(500).json({ Message: "User creation failed" });
         }
@@ -110,7 +110,6 @@ router.get("/profile", Protect, async (req, res) => {
 });
 
 router.post("/profile", () => { });
-
 
 router.post("/uploadImg", upload.single("image"), (req, res) => {
     if (!req.file) {

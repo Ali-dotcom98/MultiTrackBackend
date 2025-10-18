@@ -6,9 +6,50 @@ const Task = require("../Model/Task_Model");
 const router = express.Router();
 
 
+router.get("/detail", async (req, res) => {
+    try {
+        // const data = await User.aggregate([
+        //     {
+        //         $project: {
+        //             name: 1,
+        //             email: 1,
+        //             role: 1,
+        //             profileImage: 1
+        //         }
+        //     }
+        // ])
+
+        // const data = await User.aggregate([
+        //     {
+        //         $match: { role: "admin" }
+        //     },
+        //     {
+        //         $group: {
+        //             _id: "$role",
+        //             total: { $sum: 1 }
+        //         }
+        //     }
+        // ])
+        // const data = await User.aggregate([
+        //     {
+        //         $sort: { createdAt: -1 }
+        //     }
+        // ])
+        const data = await User.countDocuments({ role: 'admin' });
+        console.log(data);
+
+
+    } catch (error) {
+        console.log("Error", error);
+
+    }
+})
+
 router.get("/GetUserId", async (req, res) => {
     try {
         const Users = await User.find({ role: "member" });
+        console.log(Users);
+
         const userwithTaskCounts = await Promise.all(Users.map(async (user) => {
             const PendingTask = await Task.countDocuments({ assignedTo: user._id, status: "Pending" });
             const inProgressTasks = await Task.countDocuments({ assignedTo: user._id, status: "In Progress" })

@@ -369,6 +369,8 @@ router.get("/UserDashboardData", Protect, async (req, res) => {
             { $match: { assignedTo: userId } },
             { $group: { _id: "$status", count: { $sum: 1 } } }
         ]);
+        console.log("taskDistribution", taskDistribution);
+
 
         const taskDistribution = taskStatuses.reduce((acc, status) => {
             const formattedKey = status.replace(/\s+/g, "");

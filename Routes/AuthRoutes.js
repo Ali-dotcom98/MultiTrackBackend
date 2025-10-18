@@ -6,6 +6,7 @@ const { GenerateToken, VerifyToken, Protect } = require("../Utils/Token");
 const upload = require("../Middleware/uploadMiddleware")
 
 
+
 router.post("/register", async (req, res) => {
     try {
         const { name, email, password, profileImageUrl, adminInviteToken } = req.body;

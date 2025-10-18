@@ -13,7 +13,7 @@ const VerifyToken = (Token) => {
 const Protect = (req, res, next) => {
     console.log("In protect");
 
-    let token = req.headers.authorization?.split(" ")[1];
+    let token = req.headers.authorization?.split(" ")[0];
     console.log("Does token ", token);
 
 
